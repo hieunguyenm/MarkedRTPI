@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://nguyenhi.eu/assets/css/github-markdown.css">
+    <link rel="icon" href="https://nguyenhi.eu/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+</head>
+
+<body class="markdown-body" id="body-content">
+    {{ body_content|safe }}
+</body>
+
+<script>
+    var id = "{{ station_id|safe }}".toUpperCase();
+
+    var railArray = [id, "{{ name|safe }}"];
+
+    var rail = localStorage.getItem("rail");
+
+    if (!rail) {
+        rail = [];
+        rail.push(railArray);
+        localStorage.setItem("rail", JSON.stringify(rail));
+    } else {
+        rail = JSON.parse(rail);
+        var hasItem = false;
+        var hasItemIndex = 0;
+
+        for (i = 0; i < rail.length; i++) {
+            if (rail[i][0] === id) {
+                hasItem = true;
+                hasItemIndex = i;
+            }
+        }
+
+        if (hasItem) {
+            rail.splice(hasItemIndex, 1);
+        }
+
+        rail.push(railArray);
+
+        if (rail.length > 10) {
+            for (i = 0; i < rail.length - 10; i++) {
+                rail.shift();
+            }
+        }
+
+        localStorage.setItem("rail", JSON.stringify(rail));
+    }
+</script>
+
+</html>

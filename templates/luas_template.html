@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://nguyenhi.eu/assets/css/github-markdown.css">
+        <link rel="icon" href="https://nguyenhi.eu/favicon.ico">
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+    </head>
+
+    <body class="markdown-body" id="body-content">
+        {{ body_content|safe }}
+    </body>
+
+    <script>
+            function getFormattedDate() {
+                var d = new Date();
+
+                d = d.getFullYear() + "-" + ('0' + (d.getMonth() + 1)).slice(-2) + "-" + ('0' + d.getDate()).slice(-2) + " " + ('0' +
+                    d.getHours()).slice(-2) + ":" + ('0' + d.getMinutes()).slice(-2) + ":" + ('0' + d.getSeconds()).slice(-2);
+
+                return d;
+            }
+
+            var id = "{{ stop_id|safe }}"
+            var stopArray = [id, "{{ name|safe }}"];
+            var luas = localStorage.getItem("luas");
+
+            if (!luas) {
+                luas = [];
+                luas.push(stopArray);
+                localStorage.setItem("luas", JSON.stringify(luas));
+            } else {
+                luas = JSON.parse(luas);
+                var hasItem = false;
+                var hasItemIndex = 0;
+
+                for (i = 0; i < luas.length; i++) {
+                    if (luas[i][0] === id) {
+                        hasItem = true;
+                        hasItemIndex = i;
+                    }
+                }
+
+                if (hasItem) {
+                    luas.splice(hasItemIndex, 1);
+                }
+
+                luas.push(stopArray);
+
+                if (luas.length > 10) {
+                    for (i = 0; i < luas.length - 10; i++) {
+                        bus.shift();
+                    }
+                }
+
+                localStorage.setItem("luas", JSON.stringify(luas));
+            }
+        </script>
+</html>

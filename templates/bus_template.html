@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>{{ title }}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://nguyenhi.eu/assets/css/github-markdown.css">
+	<link rel="icon" href="https://nguyenhi.eu/favicon.ico">
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+</head>
+
+<body class="markdown-body">
+	{{ body_content|safe }}
+	<div id="table-content">
+		{{ table_content|safe }}
+	</div>
+	{{ request_time|safe }}
+
+	<script>
+		function getFormattedDate() {
+			var d = new Date();
+
+			d = d.getFullYear() + "-" + ('0' + (d.getMonth() + 1)).slice(-2) + "-" + ('0' + d.getDate()).slice(-2) + " " + ('0' +
+				d.getHours()).slice(-2) + ":" + ('0' + d.getMinutes()).slice(-2) + ":" + ('0' + d.getSeconds()).slice(-2);
+
+			return d;
+		}
+
+		function refresh_table() {
+			var url = "https://rtpi.nguyenhi.eu/api/rendered/bus/" + id;
+			$('#table-content').load(url);
+
+			var paragraphs = document.getElementsByTagName("p");
+			paragraphs[paragraphs.length - 1].innerHTML = "<p><strong><em>Real time data at " + getFormattedDate() +
+				" UTC</em></strong></p>";
+		}
+
+		$(document).ready(function () {
+			setInterval(refresh_table, 30000);
+		});
+
+		var id = "{{ stop_id|safe }}"
+		var stopArray = [id, "{{ street|safe }}", "{{ name|safe }}"];
+		var bus = localStorage.getItem("bus");
+
+		if (!bus) {
+			bus = [];
+			bus.push(stopArray);
+			localStorage.setItem("bus", JSON.stringify(bus));
+		} else {
+			bus = JSON.parse(bus);
+			var hasItem = false;
+			var hasItemIndex = 0;
+
+			for (i = 0; i < bus.length; i++) {
+				if (bus[i][0] === id) {
+					hasItem = true;
+					hasItemIndex = i;
+				}
+			}
+
+			if (hasItem) {
+				bus.splice(hasItemIndex, 1);
+			}
+
+			bus.push(stopArray);
+
+			if (bus.length > 10) {
+				for (i = 0; i < bus.length - 10; i++) {
+					bus.shift();
+				}
+			}
+
+			localStorage.setItem("bus", JSON.stringify(bus));
+		}
+	</script>
+</body>
+
+</html>
